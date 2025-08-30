@@ -16,6 +16,7 @@ routes:
   paths:
     usuarios: "/api/v1/usuarios"
     usuariosById: "/api/v1/usuarios/{id}"
+    usuariosByEmail: "/api/v1/usuarios/{email}"
 adapters:
   r2dbc:
     host: ${MYSQL_HOST:localhost}
@@ -32,5 +33,12 @@ management:
     health:
       probes:
         enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+  packages-to-scan: co.com.crediya.api
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8081"

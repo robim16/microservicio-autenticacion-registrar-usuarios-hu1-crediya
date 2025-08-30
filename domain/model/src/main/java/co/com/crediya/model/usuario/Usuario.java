@@ -1,4 +1,5 @@
 package co.com.crediya.model.usuario;
+import co.com.crediya.model.rol.Rol;
 import lombok.*;
 
 import java.math.BigInteger;
@@ -12,11 +13,13 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class Usuario {
     private BigInteger id;
+    private String documentoIdentidad;
     private String nombre;
     private String apellidos;
     private String email;
     private LocalDate fechaNacimiento;
     private String direccion;
+    private BigInteger idRol;
     private Long salarioBase;
 
 }
