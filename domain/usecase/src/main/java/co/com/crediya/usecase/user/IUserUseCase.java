@@ -10,4 +10,5 @@ public interface IUserUseCase {
 
     public Mono<Usuario> getUsuarioById(BigInteger id);
     public Mono<Usuario> getUsuarioByEmail(String email);
+    public Mono<String> login(String email, String password);
 }

@@ -2,6 +2,7 @@ package co.com.crediya.r2dbc;
 
 import co.com.crediya.model.usuario.Usuario;
 import co.com.crediya.model.usuario.gateways.UsuarioRepository;
+import co.com.crediya.model.usuario.security.PasswordService;
 import co.com.crediya.r2dbc.entity.UsuarioEntity;
 import co.com.crediya.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
@@ -23,9 +24,11 @@ public class UsuarioReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     private static final Logger log = LoggerFactory.getLogger(UsuarioReactiveRepositoryAdapter.class);
     private final TransactionalOperator transactionalOperator;
-    public UsuarioReactiveRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper, TransactionalOperator transactionalOperator) {
+    private final PasswordService passwordService;
+    public UsuarioReactiveRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper, TransactionalOperator transactionalOperator, PasswordService passwordService) {
         super(repository, mapper, d -> mapper.map(d, Usuario.class));
         this.transactionalOperator = transactionalOperator;
+        this.passwordService = passwordService;
     }
 
     @Override
@@ -43,6 +46,8 @@ public class UsuarioReactiveRepositoryAdapter extends ReactiveAdapterOperations<
                             if (usuario.getIdRol() == null) {
                                 usuarioEntity.setIdRol(usuario.getIdRol());
                             }
+                            String hashedPassword = passwordService.encode(usuario.getPassword());
+                            usuarioEntity.setPassword(hashedPassword);
                             return repository.save(usuarioEntity)
                                     .map(savedUserEntity -> mapper.map(savedUserEntity, Usuario.class));
 

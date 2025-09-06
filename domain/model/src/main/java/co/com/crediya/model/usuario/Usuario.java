@@ -21,5 +21,6 @@ public class Usuario {
     private String direccion;
     private BigInteger idRol;
     private Long salarioBase;
+    private String password;
 
 }

@@ -35,4 +35,6 @@ public class UsuarioEntity {
 
     @Column("salario_base")
     private Long salarioBase;
+
+    private String password;
 }
