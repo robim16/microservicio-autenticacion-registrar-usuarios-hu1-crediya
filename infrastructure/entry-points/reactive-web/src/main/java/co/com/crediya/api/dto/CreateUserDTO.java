@@ -15,6 +15,7 @@ public record CreateUserDTO(
         @Schema(description = "Fecha de nacimiento", example = "1995-08-29") LocalDate fechaNacimiento,
         @Schema(description = "Dirección de residencia", example = "Calle 123") String direccion,
         @Schema(description = "Id del rol asignado", example = "1") BigInteger idRol,
-        @Schema(description = "Salario base del usuario", example = "3000000") Long salarioBase
+        @Schema(description = "Salario base del usuario", example = "3000000") Long salarioBase,
+        @Schema(description = "Password del usuario", example = "12345") String password
 ) {
 }

@@ -15,15 +15,16 @@ spring:
 routes:
   paths:
     usuarios: "/api/v1/usuarios"
-    usuariosById: "/api/v1/usuarios/{id}"
-    usuariosByEmail: "/api/v1/usuarios/{email}"
+    usuariosById: "/api/v1/usuarios/{id:\\d+}"
+    usuariosByEmail: "/api/v1/usuarios/{email:[\\w-\\.]+@[\\w-\\.]+\\.[a-z]{2,}}"
+    login: "/api/v1/login"
 adapters:
   r2dbc:
-    host: ${MYSQL_HOST:localhost}
-    port: ${MYSQL_PORT:3306}
-    database: ${MYSQL_DB:crediyadb}
-    username: ${MYSQL_USER:crediya}
-    password: ${MYSQL_PASSWORD:password}
+    host: "${MYSQL_HOST:localhost}"
+    port: "${MYSQL_PORT:3306}"
+    database: "${MYSQL_DB:crediyadb}"
+    username: "${MYSQL_USER:crediya}"
+    password: "${MYSQL_PASSWORD:password}"
 management:
   endpoints:
     web:
@@ -34,11 +35,18 @@ management:
       probes:
         enabled: true
 
+jwt:
+  keys:
+    private-key: classpath:keys/private_key.pem
+    public-key: classpath:keys/public_key.pem
+  expiration: 3600000
+
+
 springdoc:
   api-docs:
     enabled: true
   swagger-ui:
     enabled: true
-  packages-to-scan: co.com.crediya.api
+  packages-to-scan: "co.com.crediya.api"
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8081"
+  allowed-origins: "http://localhost:4200,http://localhost:8080"

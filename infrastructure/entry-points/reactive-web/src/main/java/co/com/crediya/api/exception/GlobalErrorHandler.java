@@ -1,7 +1,9 @@
-package co.com.crediya.api.config;
+package co.com.crediya.api.exception;
 
 import co.com.crediya.usecase.user.exceptions.InvalidUsuarioException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,6 +19,7 @@ import java.util.Map;
 @Order(-2)
 public class GlobalErrorHandler implements ErrorWebExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalErrorHandler.class);
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -30,11 +33,18 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
                     "error", "Validación fallida",
                     "detalles", invalidEx.getErrors()
             );
+            log.warn("Error de validación en la petición {} {} -> {}",
+                    exchange.getRequest().getMethod(),
+                    exchange.getRequest().getURI(),
+                    invalidEx.getErrors(), ex);
         } else {
             body = Map.of(
                     "error", "Error interno",
-                    "detalle", ex.getMessage()
+                    "detalle", "Ha ocurrido un error inesperado. Inténtalo más tarde."
             );
+            log.error("Error inesperado en la petición {} {}",
+                    exchange.getRequest().getMethod(),
+                    exchange.getRequest().getURI(), ex);
         }
 
         exchange.getResponse().setStatusCode(status);
@@ -46,6 +56,7 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
             byte[] bytes = mapper.writeValueAsBytes(body);
             return exchange.getResponse().writeWith(Mono.just(bufferFactory.wrap(bytes)));
         } catch (Exception writeEx) {
+            log.error("No se pudo escribir la respuesta de error", writeEx);
             return exchange.getResponse().setComplete();
         }
     }

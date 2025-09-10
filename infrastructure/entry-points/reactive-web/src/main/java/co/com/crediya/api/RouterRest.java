@@ -1,5 +1,6 @@
 package co.com.crediya.api;
 
+import co.com.crediya.api.config.LoginPath;
 import co.com.crediya.api.config.UsuarioPath;
 import co.com.crediya.api.dto.CreateUserDTO;
 import co.com.crediya.api.dto.UsuarioResponseDTO;
@@ -30,6 +31,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouterRest {
 
     private final UsuarioPath usuarioPath;
+    private final LoginPath loginPath;
     private final Handler usuarioHandler;
 
     @Bean
@@ -48,10 +50,26 @@ public class RouterRest {
                     method = { RequestMethod.GET },
                     beanClass = Handler.class,
                     beanMethod = "listenGetUserById"
+            ),
+            @RouterOperation(
+                    path = "/api/v1/usuarios/{email}",
+                    produces = { "application/json" },
+                    method = { RequestMethod.GET },
+                    beanClass = Handler.class,
+                    beanMethod = "listenGetUserByEmail"
+            ),
+            @RouterOperation(
+                    path = "/api/v1/login",
+                    produces = { "application/json" },
+                    method = { RequestMethod.POST },
+                    beanClass = Handler.class,
+                    beanMethod = "login"
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(POST(usuarioPath.getUsuarios()), usuarioHandler::listenSaveUsuario)
-                .andRoute(GET(usuarioPath.getUsuariosById()), usuarioHandler::listenGetUserById);
+        return route(POST(usuarioPath.getUsuarios()), usuarioHandler::listenSaveUser)
+                .andRoute(GET(usuarioPath.getUsuariosById()), usuarioHandler::listenGetUserById)
+                .andRoute(GET(usuarioPath.getUsuariosByEmail()), usuarioHandler::listenGetUserByEmail)
+                .andRoute(POST(loginPath.getLogin()), usuarioHandler::login);
     }
 }
