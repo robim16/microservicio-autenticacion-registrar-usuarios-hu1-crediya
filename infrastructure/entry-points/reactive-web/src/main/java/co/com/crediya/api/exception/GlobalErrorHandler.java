@@ -40,7 +40,7 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
         } else {
             body = Map.of(
                     "error", "Error interno",
-                    "detalle", ex.getMessage()
+                    "detalle", "Ha ocurrido un error inesperado. Inténtalo más tarde."
             );
             log.error("Error inesperado en la petición {} {}",
                     exchange.getRequest().getMethod(),

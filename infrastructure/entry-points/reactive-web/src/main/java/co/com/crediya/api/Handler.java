@@ -2,6 +2,7 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.dto.CreateUserDTO;
 import co.com.crediya.api.dto.LoginRequestDTO;
+import co.com.crediya.api.dto.LoginResponseDTO;
 import co.com.crediya.api.dto.UsuarioResponseDTO;
 import co.com.crediya.api.mapper.user.UserDTOMapper;
 import co.com.crediya.usecase.user.IUserUseCase;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ public class Handler {
     @Operation(
             summary = "Crear un nuevo usuario",
             description = "Crea un usuario a partir de un DTO con información personal, rol y salario",
+            security = @SecurityRequirement(name = "bearerAuth"),
             requestBody = @RequestBody(
                     required = true,
                     content = @Content(
@@ -74,6 +77,7 @@ public class Handler {
     @Operation(
             summary = "Buscar usuario por ID",
             description = "Obtiene un usuario existente a partir de su identificador único",
+            security = @SecurityRequirement(name = "bearerAuth"),
             parameters = {
                     @Parameter(
                             name = "id",
@@ -111,6 +115,7 @@ public class Handler {
     @Operation(
             summary = "Buscar usuario por email",
             description = "Obtiene un usuario existente a partir de su email único",
+            security = @SecurityRequirement(name = "bearerAuth"),
             parameters = {
                     @Parameter(
                             name = "email",
@@ -159,7 +164,7 @@ public class Handler {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Login exitoso",
-                            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))
+                            content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -171,10 +176,15 @@ public class Handler {
                     )
             }
     )
-    public Mono<ServerResponse> login(ServerRequest serverRequest) {
-        return serverRequest.bodyToMono(LoginRequestDTO.class)
-                .flatMap(loginRequest -> userUseCase.login(loginRequest.email(), loginRequest.password()))
-                .flatMap(token -> ServerResponse.ok().bodyValue(token));
+    public Mono<ServerResponse> login(ServerRequest request) {
+        return request.bodyToMono(LoginRequestDTO.class)
+                .flatMap(loginRequest ->
+                        userUseCase.login(loginRequest.email(), loginRequest.password())
+                                .map(LoginResponseDTO::new)
+                                .flatMap(response -> ServerResponse.ok()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .bodyValue(response))
+                );
     }
 
 }

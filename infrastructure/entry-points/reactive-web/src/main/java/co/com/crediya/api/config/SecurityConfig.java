@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .authorizeExchange(auth -> auth
                         .pathMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/usuarios").hasAnyRole("ADMIN", "ASESOR")
-                        .pathMatchers(HttpMethod.GET, "/api/v1/usuarios/**").hasRole("CLIENTE")
+                        .pathMatchers(HttpMethod.GET, "/api/v1/usuarios/**").hasAnyRole("CLIENTE","ADMIN", "ASESOR")
                         .anyExchange().authenticated()
                 )
                 .authenticationManager(authManager)

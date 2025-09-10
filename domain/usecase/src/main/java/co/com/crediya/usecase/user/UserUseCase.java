@@ -5,6 +5,9 @@ import co.com.crediya.model.usuario.Usuario;
 import co.com.crediya.model.usuario.gateways.UsuarioRepository;
 import co.com.crediya.model.usuario.security.PasswordService;
 import co.com.crediya.model.usuario.security.TokenService;
+import co.com.crediya.usecase.user.exceptions.InvalidCredentialsException;
+import co.com.crediya.usecase.user.exceptions.RolNotFoundException;
+import co.com.crediya.usecase.user.exceptions.UserNotFoundException;
 import co.com.crediya.usecase.user.validators.UsuarioValidator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -37,10 +40,10 @@ public class UserUseCase implements IUserUseCase {
     @Override
     public Mono<String> login(String email, String password) {
         return usuarioRepository.getUsuarioByEmail(email)
-                .switchIfEmpty(Mono.error(new RuntimeException("Usuario no encontrado")))
+                .switchIfEmpty(Mono.error(new UserNotFoundException("Usuario no encontrado")))
                 .flatMap(usuario ->
                         rolRepository.getRolById(usuario.getIdRol())
-                                .switchIfEmpty(Mono.error(new RuntimeException("Rol no encontrado")))
+                                .switchIfEmpty(Mono.error(new RolNotFoundException("Rol no encontrado")))
                                 .flatMap(rol -> {
                                     if (passwordService.matches(password, usuario.getPassword())) {
                                         String token = tokenService.generateToken(
@@ -49,7 +52,7 @@ public class UserUseCase implements IUserUseCase {
                                         );
                                         return Mono.just(token);
                                     } else {
-                                        return Mono.error(new RuntimeException("Credenciales inválidas"));
+                                        return Mono.error(new InvalidCredentialsException("Credenciales inválidas"));
                                     }
                                 })
                 );
